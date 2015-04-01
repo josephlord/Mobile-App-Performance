@@ -52,7 +52,7 @@ class ViewController: UIViewController {
     
     track = HCMTrack(data: trackJSON.dataUsingEncoding(NSUTF8StringEncoding))
     
-    let lapsFilePath = NSBundle.mainBundle().pathForResource("multi_lap_session", ofType: "csv", inDirectory: "Assets")!
+    let lapsFilePath = NSBundle.mainBundle().pathForResource("multi_lap_session", ofType: "csv", inDirectory: "Data")!
     let contents = String(contentsOfFile: lapsFilePath, encoding: NSUTF8StringEncoding, error: nil)!
     let lines = contents.componentsSeparatedByString("\n")
     for line in lines {
@@ -79,18 +79,20 @@ class ViewController: UIViewController {
     let start = NSDate().timeIntervalSince1970
     var startTime = start
     for index in 1...count {
-      HCMSessionManager.instance().startSessionWithTrack(track!)
-      for point in points {
-        HCMSessionManager.instance().gpsWithLatitude(point.latitudeDegrees(),
-          longitude: point.longitudeDegrees(),
-          speed: point.speed(),
-          bearing: point.bearing(),
-          horizontalAccuracy: point.hAccuracy(),
-          verticalAccuracy: point.vAccuracy(),
-          timestamp: startTime)
-        startTime += 1
+      autoreleasepool {
+        HCMSessionManager.instance().startSessionWithTrack(track!)
+        for point in points {
+          HCMSessionManager.instance().gpsWithLatitude(point.latitudeDegrees(),
+            longitude: point.longitudeDegrees(),
+            speed: point.speed(),
+            bearing: point.bearing(),
+            horizontalAccuracy: point.hAccuracy(),
+            verticalAccuracy: point.vAccuracy(),
+            timestamp: startTime)
+          startTime += 1
+        }
+        HCMSessionManager.instance().endSession()
       }
-      HCMSessionManager.instance().endSession()
     }
     return NSDate().timeIntervalSince1970 - start
   }
